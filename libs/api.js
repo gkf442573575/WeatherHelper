@@ -1,4 +1,3 @@
-
 var apiLocalWeatherUrl = 'https://open.onebox.so.com/Dataapi?&query=%E5%A4%A9%E6%B0%94&type=weather&ip=&src=soindex&d=pc&url=weather';
 var apiCityWeatherUrl = 'https://open.onebox.so.com/Dataapi?callback=&query=%E5%8C%97%E4%BA%AC%E5%B8%82%E5%8C%97%E4%BA%AC%E6%B5%B7%E6%B7%80%E5%A4%A9%E6%B0%94&type=weather&ip=&src=soindex&d=pc&url=http%253A%252F%252Fcdn.weather.hao.360.cn%252Fsed_api_weather_info.php%253Fapp%253DguideEngine%2526fmt%253Djson%2526code%253D';
 
@@ -15,11 +14,13 @@ function loadWeatherData(cityCode, cb) {
       if (res.statusCode != 200 || res.data.length == 0) {
         return;
       }
+      console.log('water', res);
       var weatherData = parseWeatherData(res.data);
       typeof cb == "function" && cb(cityCode, weatherData)
     }
   })
 }
+
 function parseWeatherData(data) {
   data.realtime.weather.pic = weatherPic(data.realtime.weather.img);
   for (var i = 0; i < data.weather.length; i++) {
@@ -30,7 +31,7 @@ function parseWeatherData(data) {
   var lifeConf = []
   for (var key in data.life.info) {
     var name = lifeName(key)
-    if(name != undefined) {
+    if (name != undefined) {
       lifeConf.push({
         key: key,
         name: name,
@@ -41,12 +42,14 @@ function parseWeatherData(data) {
   data.life['conf'] = lifeConf;
   return data;
 }
+
 function weatherPic(no) {
   if (no.length == 1) {
     no = '0' + no;
   }
   return 'https://p0.ssl.qhimg.com/d/f239f0e2/' + no + '.png'
 }
+
 function lifePic(key) {
   return 'https://p0.ssl.qhimg.com/d/f239f0e2/' + key + '.png';
 }
@@ -58,13 +61,17 @@ var lifeNameConf = {
   yundong: "运动",
   ziwaixian: "紫外线",
   diaoyu: "钓鱼",
-  daisan:"带伞",
-  guomin:"过敏",
+  daisan: "带伞",
+  guomin: "过敏",
 }
+
 function lifeName(key) {
   return lifeNameConf[key];
 }
+
 function shortDate(str) {
+  console.log('str', str);
+  console.log('shortdate', Date.parse(str));
   var date = new Date(Date.parse(str));
   var now = new Date();
 
@@ -85,7 +92,7 @@ function loadCityConf(level, code, cb) {
     typeof cb == "function" && cb(level, code, cityConfCache[cacheKey])
     return
   }
-  
+
   wx.request({
     url: apiCityConfUrl(level, code),
     data: {},
@@ -93,11 +100,14 @@ function loadCityConf(level, code, cb) {
       if (res.statusCode != 200 || res.data.length == 0) {
         return;
       }
+      console.log('apiCityConfUrl', res);
+
       cityConfCache[cacheKey] = res.data;
       typeof cb == "function" && cb(level, code, res.data)
     }
   })
 }
+
 function apiCityConfUrl(level, code) {
   var url = cdnWeatherHaoUrl + level
   if (code != "") {
